@@ -34,5 +34,10 @@ namespace ClimateVisualizer.DBServices
             return ClimateRecordPage;
         }
 
+        public PaginatedRecordList GetFilteredPage(string searchStation, string month, string province, int index, int pageSize)
+        {           
+            ClimateRecordPage.Records = Repo.GetFilteredRecords(searchStation, month, province, index, pageSize);
+            return ClimateRecordPage;
+        }
     }
 }

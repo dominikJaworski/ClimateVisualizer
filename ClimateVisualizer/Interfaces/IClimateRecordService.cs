@@ -13,5 +13,6 @@ namespace ClimateVisualizer.Interfaces
 
         PaginatedRecordList GetRecordPage(int index, int pageSize);
 
+        PaginatedRecordList GetFilteredPage(string searchStation, string month, string province, int index, int pageSize);
     }
 }
