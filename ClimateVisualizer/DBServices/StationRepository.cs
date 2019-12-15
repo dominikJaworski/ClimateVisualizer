@@ -7,63 +7,39 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace ClimateVisualizer.DBServices
 {
-    public class StationRepository : IStationRepository, IDisposable
+    public class StationRepository : IStationRepository
     {
 
-        private static readonly string StationListQuery = "Select [StationId], [StationName], [Province], [Latitude], [Longitude] from [Warehouse].[dbo].[Stations] " + 
+        private const string StationListQuery = "Select [StationId], [StationName], [Province], [Latitude], [Longitude] from [Warehouse].[dbo].[Stations] " + 
         "ORDER BY [StationId] OFFSET @Offset ROWS FETCH NEXT @Pagesize ROWS ONLY";
 
-        private static readonly string StationDetailQuery = "";
+        private const string StationDetailQuery = "";
 
-        private static readonly string WhereClause = "WHERE e.[StationId] = @StationID";
+        private const string WhereClause = "WHERE e.[StationId] = @StationID";
+        
+        private readonly IConfiguration Configuration;
 
-        private readonly SqlConnection Connection;
-
-        public StationRepository(SqlConnection connection)
+        public StationRepository(IConfiguration configuration)
         {
-            Connection = connection;
+            Configuration = configuration;
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Connection.Dispose();
-            }
-        }
-
-        ~StationRepository()
-        {
-            Dispose(false);
-        }
-
 
         public IEnumerable<StationListModel> GetStationList(int pageIndex, int pageSize)
         {
-            List<StationListModel> list = new List<StationListModel>();
+            using var dal = new DalSession(Configuration);
 
-            list = Connection.Query<StationListModel>(StationListQuery, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize }).ToList();
-
-            return list;
+            return dal.Connection.Query<StationListModel>(StationListQuery, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize }).ToList();
         }
 
         public IEnumerable<StationDetailModel> GetStationDetails(int pageIndex, int pageSize, int id)
         {
-            List<StationDetailModel> list = new List<StationDetailModel>();
+            using var dal = new DalSession(Configuration);
 
-            list = Connection.Query<StationDetailModel>(StationDetailQuery + WhereClause, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize, StationID = id}).ToList();
-
-            return list;
+            return dal.Connection.Query<StationDetailModel>(StationDetailQuery + WhereClause, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize, StationID = id}).ToList();
         }
 
         public int GetStationListCount()

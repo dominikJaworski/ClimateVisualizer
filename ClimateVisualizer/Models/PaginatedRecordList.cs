@@ -13,15 +13,15 @@ namespace ClimateVisualizer.Models
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
 
-        public List<SelectListItem> MonthSelectList { get; set; }
-        public List<SelectListItem> ProvinceSelectList { get; set; }
-        public SelectListItem SelectedMonth { get; set; }
-        public SelectListItem SelectedProvince { get; set; }
-        public string StationFilter { get; set; }
+        public List<SelectListItem> MonthSelectList { get; }
+        public List<SelectListItem> ProvinceSelectList { get; }
+        public SelectListItem? SelectedMonth { get; set; }
+        public SelectListItem? SelectedProvince { get; set; }
+        public string? StationFilter { get; set; }
 
-        public int RecordCount;
+        public int RecordCount { get; set; }
 
-        public IEnumerable<RecordModel> Records { get; set; }
+        public IEnumerable<RecordModel>? Records { get; set; }
 
         public PaginatedRecordList(List<SelectListItem> months, List<SelectListItem> provinces, int count)
         {

@@ -9,10 +9,11 @@ using ClimateVisualizer.Interfaces;
 using ClimateVisualizer.Models;
 using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 
 namespace ClimateVisualizer.DBServices
 {
-    public class ClimateRecordRepository : IClimateRecordRepository, IDisposable
+    public class ClimateRecordRepository : IClimateRecordRepository
     {      
         private const string RecordPageQuery = "SELECT c.[RecordID], e.[StationName], e.[Province], e.[Latitude], e.[Longitude], c.[Month], " +
                 "c.[MeanTemp], c.[HighestMonthlyMaxTemp], c.[LowestMonthlyMinTemp], c.[Snowfall], c.[TotalPrecipitation] " +
@@ -27,44 +28,21 @@ namespace ClimateVisualizer.DBServices
         private const string StationFilteringClause = "e.[StationName] LIKE %%@Filter%% ";
 
         private const string RecordCountQuery = "SELECT DISTINCT count(RecordID) FROM [Warehouse].[dbo].[Recs]";
+        
+        private readonly IConfiguration Configuration;
 
-        private readonly SqlConnection Connection;
-
-        public ClimateRecordRepository(SqlConnection connection)
+        public ClimateRecordRepository(IConfiguration configuration)
         {
-            Connection = connection;
+            Configuration = configuration;
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Connection.Dispose();
-            }
-        }
-
-        ~ClimateRecordRepository()
-        {
-            Dispose(false);
-        }
-
 
         public IEnumerable<RecordModel> GetClimateRecordPage(int pageIndex, int pageSize)
         {
-            List<RecordModel> list = new List<RecordModel>();
-
             string query = RecordPageQuery + PagingClause;
 
-            list = Connection.Query<RecordModel>(query, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize }).ToList();
-            
-            return list;
+            using var dal = new DalSession(Configuration);
+
+            return dal.Connection.Query<RecordModel>(query, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize }).ToList();
         }
 
         
@@ -131,7 +109,9 @@ namespace ClimateVisualizer.DBServices
 
         public int GetClimateRecordCount()
         {
-            return Connection.ExecuteScalar<int>(RecordCountQuery);            
+            using var dal = new DalSession(Configuration);
+
+            return dal.Connection.ExecuteScalar<int>(RecordCountQuery);            
         }
     }
 }

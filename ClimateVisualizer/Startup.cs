@@ -38,10 +38,7 @@ namespace ClimateVisualizer
             services.AddScoped<IClimateRecordRepository, ClimateRecordRepository>();
             services.AddScoped<IClimateRecordService, ClimateRecordService>();
             services.AddScoped<IStationRepository, StationRepository>();
-            services.AddScoped<IStationService, StationService>();
-
-            services.AddScoped<SqlConnection>(_ => new SqlConnection(Configuration["Database:ConnectionString"]));
-            
+            services.AddScoped<IStationService, StationService>();          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
