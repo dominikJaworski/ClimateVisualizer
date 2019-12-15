@@ -67,45 +67,7 @@ namespace ClimateVisualizer.DBServices
             return list;
         }
 
-        public IEnumerable<RecordModel> GetFilteredRecords(string searchStation, string month, string province, int pageIndex, int pageSize)
-        {
-            List<RecordModel> list = new List<RecordModel>();
-            string query = RecordPageQuery + "WHERE ";
-            
-            bool monthAdded = false;
-            bool provinceAdded = false;
-
-            query.Replace(MonthFilteringClause, "");
-            query.Replace(ProvinceFilteringClause, "");
-            query.Replace(StationFilteringClause, "");
-
-            if (!string.IsNullOrEmpty(province))
-            {
-                query = query + ProvinceFilteringClause;
-                provinceAdded = true;
-            }
-
-            if (!string.IsNullOrEmpty(month))
-            {
-                if (provinceAdded) query = query + "AND ";
-                query = query + MonthFilteringClause;
-                monthAdded = true;
-            }
-
-            if (!string.IsNullOrEmpty(searchStation))
-            {
-                if (monthAdded) query = query + "AND ";
-                query = query + StationFilteringClause;
-                
-            }
-
-            //query = query + PagingClause;
-            DateTime? selectMonth = DateTime.ParseExact(month, "yyyy-MM-dd", new CultureInfo("en-US"));
-
-            list = Connection.Query<RecordModel>(query, new { Offset = (pageIndex - 1) * pageSize, PageSize = pageSize, Month = selectMonth, Province = province, Filter = searchStation }).ToList();            
-
-            return list;
-        }
+        
 
         public List<SelectListItem> GetMonths()
         {
